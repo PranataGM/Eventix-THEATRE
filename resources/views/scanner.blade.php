@@ -7,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body class="bg-gray-100 font-sans flex flex-col h-screen">
+<body class="bg-gray-100 font-sans flex flex-col h-screen"> 
+    @include('partials.toast')
     <nav class="bg-indigo-600 p-4 text-white text-center shadow">
         <h1 class="text-2xl font-bold">Ticket Scanner</h1>
     </nav>

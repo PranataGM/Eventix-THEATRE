@@ -27,6 +27,10 @@ class EventResource extends Resource
                     ->relationship('organizer', 'name')
                     ->label('Penyelenggara')
                     ->required(),
+                Forms\Components\Select::make('category_id')
+                    ->relationship('category', 'name')
+                    ->label('Kategori')
+                    ->required(),
                 Forms\Components\TextInput::make('name')
                     ->label('Nama Acara')
                     ->required()
@@ -60,6 +64,10 @@ class EventResource extends Resource
                     ->label('Penyelenggara')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->label('Kategori')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('event_date')
                     ->label('Tanggal Acara')
                     ->dateTime()
@@ -82,12 +90,37 @@ class EventResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->before(function (Tables\Actions\DeleteAction $action, $record) {
+                        if ($record->ticketTypes()->whereHas('registrations')->exists()) {
+                            \Filament\Notifications\Notification::make()
+                                ->danger()
+                                ->title('Gagal Menghapus')
+                                ->body('Acara ini sudah memiliki tiket yang dibeli. Tidak dapat dihapus untuk mencegah hilangnya data tiket.')
+                                ->send();
+                            
+                            $action->halt();
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->before(function (Tables\Actions\DeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+                            foreach ($records as $record) {
+                                if ($record->ticketTypes()->whereHas('registrations')->exists()) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->danger()
+                                        ->title('Gagal Menghapus')
+                                        ->body('Beberapa acara memiliki tiket yang telah dibeli. Proses dibatalkan secara keseluruhan.')
+                                        ->send();
+                                    $action->halt();
+                                }
+                            }
+                        }),
                 ]),
-            ]);
+            ])
+            ->paginated(false);
     }
 
     public static function getRelations(): array

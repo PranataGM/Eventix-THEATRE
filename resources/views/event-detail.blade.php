@@ -18,12 +18,10 @@
         }
     </script>
 </head>
-<body class="bg-theater-light font-sans text-gray-800 antialiased">
+<body class="bg-theater-light font-sans text-gray-800 antialiased"> 
+    @include('partials.toast')
     
-    <nav class="bg-theater-dark container-fluid px-6 py-4 flex justify-between items-center text-white">
-        <a href="/" class="text-xl font-serif font-bold tracking-tight">Eventix<span class="text-[10px] ml-2 tracking-[0.2em] font-sans font-normal uppercase text-gray-400">&bull; THEATRE &bull;</span></a>
-        <a href="/" class="text-sm font-medium text-gray-300 hover:text-white transition">&larr; Kembali ke Daftar Acara</a>
-    </nav>
+    @include('partials.navbar')
 
     <div class="bg-theater-dark text-white pt-16 pb-24 border-t border-gray-800" data-aos="fade-in">
         <div class="container mx-auto px-4 max-w-4xl text-center">

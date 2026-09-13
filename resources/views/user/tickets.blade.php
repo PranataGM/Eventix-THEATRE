@@ -26,24 +26,10 @@
         }
     </script>
 </head>
-<body class="bg-theater-light font-sans text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="bg-theater-light font-sans text-gray-800 antialiased min-h-screen flex flex-col"> 
+    @include('partials.toast')
 
-    <!-- Navbar -->
-    <nav class="bg-theater-dark text-white">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="/" class="text-2xl font-serif font-bold tracking-tight">Eventix<span class="text-[10px] block tracking-[0.3em] font-sans font-normal uppercase text-gray-400 mt-1">&bull; THEATRE &bull;</span></a>
-            <div class="flex items-center space-x-6 text-sm font-medium text-gray-300">
-                <a href="/" class="hover:text-white transition">Beranda</a>
-                @if(auth()->user()->hasRole(['super_admin', 'organizer', 'scanner']))
-                    <a href="/admin" class="hover:text-white transition">Admin Dasbor</a>
-                @endif
-                <form action="{{ route('logout') }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="hover:text-red-400 transition">Keluar</button>
-                </form>
-            </div>
-        </div>
-    </nav>
+    @include('partials.navbar')
 
     <!-- Main Content -->
     <div class="flex-grow container mx-auto px-4 py-12 max-w-5xl">
@@ -139,12 +125,7 @@
         @endif
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-theater-dark text-gray-400 py-8 mt-auto">
-        <div class="container mx-auto px-6 text-center">
-            <p class="text-sm">&copy; 2026 Eventix Theatre. Hak Cipta Dilindungi.</p>
-        </div>
-    </footer>
+    @include('partials.footer')
 
 </body>
 </html>

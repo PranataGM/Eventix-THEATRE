@@ -16,7 +16,6 @@ class UserDashboardController extends Controller
 
         $registrations = Registration::with(['event', 'ticketType'])
             ->where('user_id', $user->id)
-            ->where('status', 'confirmed')
             ->orderBy('created_at', 'desc')
             ->get();
 

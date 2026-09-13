@@ -151,7 +151,16 @@ class RegistrationResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->paginated(false)
+            ->groups([
+                \Filament\Tables\Grouping\Group::make('event.event_date')
+                    ->label('Hari Acara')
+                    ->date(),
+                \Filament\Tables\Grouping\Group::make('event.category.name')
+                    ->label('Kategori'),
+            ])
+            ->defaultGroup('event.event_date');
     }
 
     public static function getRelations(): array

@@ -14,7 +14,7 @@ class EventController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Event::with('ticketTypes')->where('event_date', '>=', now());
+        $query = Event::with('ticketTypes', 'category')->where('event_date', '>=', now());
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -24,8 +24,37 @@ class EventController extends Controller
             });
         }
 
+        if ($request->filled('category')) {
+            $categorySlug = $request->category;
+            $query->whereHas('category', function($q) use ($categorySlug) {
+                $q->where('slug', $categorySlug);
+            });
+        }
+
         $events = $query->orderBy('event_date', 'asc')->get();
-        return view('welcome', compact('events'));
+
+        // Kita dapatkan event dengan ticketTypes lalu gunakan collection methods 
+        // untuk mencegah masalah kompatibilitas database (QueryException pada SQLite/MySQL strict mode).
+        $popularEvents = Event::with('ticketTypes')
+            ->where('event_date', '>=', now())
+            ->get()
+            ->map(function ($event) {
+                // Tambahkan properti buatan 'remaining_quota_sum'
+                $event->remaining_quota_sum = $event->ticketTypes->sum('remaining_quota');
+                return $event;
+            })
+            ->filter(function ($event) {
+                return $event->remaining_quota_sum > 0;
+            })
+            ->sortBy('remaining_quota_sum')
+            ->take(3);
+
+        // Jika tidak ada tiket yang sesuai, fallback manual:
+        if ($popularEvents->isEmpty()) {
+            $popularEvents = $events->take(3);
+        }
+
+        return view('welcome', compact('events', 'popularEvents'));
     }
 
     public function show($id)
@@ -54,6 +83,9 @@ class EventController extends Controller
             ['email' => $request->email],
             ['name' => $request->name, 'password' => bcrypt(Str::random(10))]
         );
+
+        // Auto-login pengguna agar mereka bisa mengakses dan mengunduh tiketnya
+        \Illuminate\Support\Facades\Auth::login($user);
 
         $orderNumber = 'ORD-' . strtoupper(Str::random(10));
         $quantity = $request->quantity;

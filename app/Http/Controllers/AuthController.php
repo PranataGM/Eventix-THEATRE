@@ -21,6 +21,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            
+            // Arahkan admin langsung ke Dasbor Admin
+            if (Auth::user()->hasRole(['super_admin', 'organizer', 'scanner'])) {
+                return redirect()->intended('/admin');
+            }
+            
             return redirect()->intended('/');
         }
 

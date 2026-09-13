@@ -94,12 +94,37 @@ class TicketTypeResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->before(function (Tables\Actions\DeleteAction $action, $record) {
+                        if ($record->registrations()->exists()) {
+                            \Filament\Notifications\Notification::make()
+                                ->danger()
+                                ->title('Gagal Menghapus')
+                                ->body('Jenis tiket ini sudah memiliki tiket yang dibeli. Tidak dapat dihapus.')
+                                ->send();
+                            
+                            $action->halt();
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->before(function (Tables\Actions\DeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+                            foreach ($records as $record) {
+                                if ($record->registrations()->exists()) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->danger()
+                                        ->title('Gagal Menghapus')
+                                        ->body('Beberapa jenis tiket memiliki tiket yang telah dibeli. Proses dibatalkan secara keseluruhan.')
+                                        ->send();
+                                    $action->halt();
+                                }
+                            }
+                        }),
                 ]),
-            ]);
+            ])
+            ->paginated(false);
     }
 
     public static function getRelations(): array

@@ -13,7 +13,8 @@
         .footer { font-size: 12px; color: #777; margin-top: 30px; }
     </style>
 </head>
-<body>
+<body> 
+    @include('partials.toast')
     <div class="ticket-box">
         <div class="header">
             E-TICKET EVENTIX
